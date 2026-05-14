@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>LSTI</title>
+    <!-- 引入复古等宽字体、Cinzel 以及现代高级无衬线体 Montserrat -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:ital,wght@0,300;1,300&family=Noto+Serif+SC:wght@700&family=Roboto+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="at-home">
+    <!-- 全局 CRT 扫描线层：确保全屏覆盖且无断层 -->
+
+    <div id="shutter-gate" class="shutter-gate">
+        <div class="blade top"></div>
+        <div class="blade bottom"></div>
+        <div class="blade left"></div>
+        <div class="blade right"></div>
+    </div>
+
+
+    <div id="main-scroll-container">
+        <header class="osd-bar">
+            <div class="osd-left" id="q-id">正在引导系统...</div>
+            <div class="osd-right">
+                <span id="clock">00:00:00</span> /
+                <span id="top-skip-trigger" style="cursor:pointer;">[进入档案测试]</span>
+            </div>
+        </header>
+
+        <div class="test-menu-container" id="test-menu-wrapper">
+            <div class="menu-overlay" id="menu-overlay"></div>
+            <div class="test-dropdown" id="test-dropdown">
+                <div class="dropdown-section">
+                    <div class="section-title">隐藏人格档案 (Hidden SSR)</div>
+                    <div class="id-grid" id="hidden-roles"></div>
+                </div>
+                <div class="dropdown-section">
+                    <div class="section-title">标准人格档案 (By Archetype)</div>
+                    <div id="standard-archetypes"></div>
+                </div>
+            </div>
+        </div>
+
+        <main class="viewport">
+            <!-- LSTI 剧本初始化首页 -->
+            <div id="home-screen" class="home-screen">
+                <div class="home-header">
+                    <!-- 标题拆分为上下两层，实现独立撕裂 -->
+                    <div class="title-split-wrap">
+                        <h1 class="home-title split-top" data-text="LSTI">
+                            <span class="glitch-letter">L</span><span class="glitch-letter">S</span><span
+                                class="glitch-letter">T</span><span class="glitch-letter">I</span>
+                        </h1>
+                        <h1 class="home-title split-bottom" data-text="LSTI">
+                            <span class="glitch-letter">L</span><span class="glitch-letter">S</span><span
+                                class="glitch-letter">T</span><span class="glitch-letter">I</span>
+                        </h1>
+                    </div>
+                </div>
+
+                <!-- Monolith 拆分为上下两层，实现独立撕裂 -->
+                <div class="monolith-split-wrap">
+                    <div class="monolith-instance split-top">
+                        <div class="diagnostic-monolith">
+                            <div class="orb-scanlines"></div>
+                            <div class="orb-core">
+                                <div class="orb-lens"></div>
+                            </div>
+                            <div class="orb-ring ring-1"></div>
+                            <div class="orb-ring ring-2"></div>
+                        </div>
+                    </div>
+                    <div class="monolith-instance split-bottom">
+                        <div class="diagnostic-monolith">
+                            <div class="orb-scanlines"></div>
+                            <div class="orb-core">
+                                <div class="orb-lens"></div>
+                            </div>
+                            <div class="orb-ring ring-1"></div>
+                            <div class="orb-ring ring-2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 提词器：移至球体下方，采用多行预览模式 -->
+                <div class="prompter-viewport">
+                    <div class="prompter-track" id="prompter-track">
+                        <div class="prompter-line active">STANDBY...</div>
+                        <div class="prompter-line">摄影机一直开着</div>
+                        <div class="prompter-line">而你还在扮演别人</div>
+                        <div class="prompter-line">系统已载入</div>
+                        <div class="prompter-line">30幕荒诞分镜</div>
+                        <div class="prompter-line">49部经典影像</div>
+                        <div class="prompter-line">56个被遗弃的角色</div>
+                        <div class="prompter-line">散落成 22个隐秘的人格切片</div>
+                        <div class="prompter-line">做好准备</div>
+                        <div class="prompter-line">找到你的真实剧本</div>
+                        <div class="prompter-line">&nbsp;</div>
+                    </div>
+                </div>
+
+                <div class="home-menu">
+                    <!-- 主操作区：居中下移 -->
+                    <div class="primary-actions">
+                        <button class="home-btn main-action" onclick="startTest()">⌜ 开始试镜 ⌟</button>
+                    </div>
+
+                    <!-- 次要操作区：固定在底部两端 -->
+                    <div class="secondary-actions">
+                        <button class="home-btn side-btn" onclick="viewPastPerformance()">⌜ 回顾角色 ⌟</button>
+                        <a href="../index.html?skipIntro=true" class="home-btn side-btn exit-btn"
+                            onclick="event.preventDefault(); gateNavigate(() => window.location.href='../index.html?skipIntro=true')">离开片场</a>
+                    </div>
+                </div>
+                <!-- 底部装饰性元数据集群 -->
+                <div class="home-meta-cluster">
+                    <div class="meta-item">INITIALIZING_BIOMETRICS...</div>
+                    <div class="meta-item">CORE_01_ONLINE</div>
+                    <div class="meta-item">DATABASE_LINK_ESTABLISHED</div>
+                    <div class="meta-item">USER_SYNC: [ACTIVE]</div>
+                </div>
+
+                <!-- 首页底部版权声明 -->
+                <footer class="final-footer">
+                    <div class="credits-divider"></div>
+                    <div class="credits-block">
+                        <p class="credit-notice">原创作品 · 抄袭必究</p>
+                        <p class="credit-role">技术支持 : who-ology</p>
+                        <p class="credit-main">© 2026 who-ology<br>Created by Gemini & Antigravity</p>
+                        <p class="credit-social">小红书 · @who-ology</p>
+                    </div>
+                </footer>
+            </div>
+
+            <div class="script-stack hidden" id="script-container"></div>
+            <div id="cursor" class="monitor-cursor hidden">> 正在载入剧本<span class="blink-char">_</span></div>
+            <div class="btn-wrap">
+                <button id="trigger-btn" class="cmd-btn hidden" onclick="openDrawer()">
+                    [ 你的第一反应是 ]
+                </button>
+                <div id="prev-btn" class="prev-cmd hidden" onclick="prevQuestion()">
+                    <span class="bracket">[</span> 重拟 <span class="bracket">]</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- ── 结算页 ── -->
+        <main id="settlement-viewport" class="settlement-viewport hidden">
+            <div class="settlement-content">
+
+                <!-- 区块 1：首屏取景器 (Hero Viewfinder) -->
+                <section class="viewfinder-module" id="phase-1">
+
+                    <!-- 顶部：核心数据区 (代号、姓名与哲学) -->
+                    <div class="hero-header-data">
+                        <h2 class="spirit-code">${spirit_code}</h2>
+                        <p class="spirit-avatar">${spirit_avatar_name}</p>
+                        <p class="spirit-philosophy">${philosophy_tone}</p>
+                    </div>
+
+                    <div class="image-container">
+                        <!-- REC 和时间码现在悬浮在图片内部 -->
+                        <div class="viewfinder-ui overlay">
+                            <div class="vf-top-left">REC <span class="rec-dot">🔴</span></div>
+                        </div>
+                        <img class="hero-image" src="${img_src}" alt="${spirit_code}">
+                        <div class="hairline bottom"></div>
+                    </div>
+
+                    <!-- 底部：意境 Slogan -->
+                    <div class="hero-footer-info">
+                        <div class="hero-slogan">${slogan_text}</div>
+                    </div>
+
+                    <!-- 首屏无需白线触发，用户自然下滑即可 -->
+                </section>
+
+                <!-- PHASE 2: SCRIPT SETUP (DIMENSIONS) -->
+                <div class="phase-screen is-locked" id="phase-2">
+                    <section class="parameter-module">
+                        <div class="module-header">
+                            <h1 class="glitch-title">剧本设定 Script Setup</h1>
+                            <p class="ui-subtitle">四大核心维度定格</p>
+                        </div>
+
+                        <!-- 核心框架：将阵营描述与维度网格全部包裹在笔记本容器中 -->
+                        <div class="stats-card">
+                            <div class="camp-tag">
+                                <span class="camp-label">所属剧本 / Archive Faction</span>
+                                <h3 class="camp-name">${camp_name}</h3>
+                            </div>
+                            <p class="camp-desc">${camp_description}</p>
+
+                            <div class="parameters-grid">
+                                <div class="params-column">
+                                    <div class="parameter-card" id="dim-tension">
+                                        <div class="dim-header clickable" onclick="toggleDimCard(this)">
+                                            <div class="dim-title-wrap">
+                                                <span
+                                                    class="dim-cue"><span>&gt;</span><span>&gt;</span><span>&gt;</span></span>
+                                                <span class="dim-label">剧本张力</span>
+                                            </div>
+                                        </div>
+                                        <p class="dim-definition">你是渴望重写规则，还是在框架内寻找出路？</p>
+                                        <div class="dim-expand-content">
+                                            <div class="slider-track">
+                                                <div class="slider-thumb">
+                                                    <div class="thumb-triangle">▼</div>
+                                                    <div class="dim-value-text">0%</div>
+                                                </div>
+                                            </div>
+                                            <div class="slider-labels"><span>循迹</span><span>越轨</span></div>
+                                            <p class="dim-desc-text">${tension_val_description}</p>
+                                        </div>
+                                    </div>
+                                    <div class="parameter-card" id="dim-camera">
+                                        <div class="dim-header clickable" onclick="toggleDimCard(this)">
+                                            <div class="dim-title-wrap">
+                                                <span
+                                                    class="dim-cue"><span>&gt;</span><span>&gt;</span><span>&gt;</span></span>
+                                                <span class="dim-label">镜头语言</span>
+                                            </div>
+                                        </div>
+                                        <p class="dim-definition">视角是主观的介入，还是客观的凝视？</p>
+                                        <div class="dim-expand-content">
+                                            <div class="slider-track">
+                                                <div class="slider-thumb">
+                                                    <div class="thumb-triangle">▼</div>
+                                                    <div class="dim-value-text">0%</div>
+                                                </div>
+                                            </div>
+                                            <div class="slider-labels"><span>抽离</span><span>介入</span></div>
+                                            <p class="dim-desc-text">${camera_val_description}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="params-column">
+                                    <div class="parameter-card" id="dim-bond">
+                                        <div class="dim-header clickable" onclick="toggleDimCard(this)">
+                                            <div class="dim-title-wrap">
+                                                <span
+                                                    class="dim-cue"><span>&gt;</span><span>&gt;</span><span>&gt;</span></span>
+                                                <span class="dim-label">角色羁绊</span>
+                                            </div>
+                                        </div>
+                                        <p class="dim-definition">羁绊是灵魂的锚点，还是沉重的枷锁？</p>
+                                        <div class="dim-expand-content">
+                                            <div class="slider-track">
+                                                <div class="slider-thumb">
+                                                    <div class="thumb-triangle">▼</div>
+                                                    <div class="dim-value-text">0%</div>
+                                                </div>
+                                            </div>
+                                            <div class="slider-labels"><span>孤岛</span><span>共生</span></div>
+                                            <p class="dim-desc-text">${bond_val_description}</p>
+                                        </div>
+                                    </div>
+                                    <div class="parameter-card" id="dim-persona">
+                                        <div class="dim-header clickable" onclick="toggleDimCard(this)">
+                                            <div class="dim-title-wrap">
+                                                <span
+                                                    class="dim-cue"><span>&gt;</span><span>&gt;</span><span>&gt;</span></span>
+                                                <span class="dim-label">主角人设</span>
+                                            </div>
+                                        </div>
+                                        <p class="dim-definition">当剥离社会身份，真正的你是谁？</p>
+                                        <div class="dim-expand-content">
+                                            <div class="slider-track">
+                                                <div class="slider-thumb">
+                                                    <div class="thumb-triangle">▼</div>
+                                                    <div class="dim-value-text">0%</div>
+                                                </div>
+                                            </div>
+                                            <div class="slider-labels"><span>权变</span><span>守序</span></div>
+                                            <p class="dim-desc-text">${persona_val_description}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <div class="glint-trigger" onclick="unlockNextPhase(3, this)">
+                        <span class="glint-hint"> 点击解锁 </span>
+                    </div>
+                </div>
+
+                <!-- PHASE 3: VOICE OVER -->
+                <div class="phase-screen is-locked" id="phase-3">
+                    <section class="subtitle-module">
+                        <div class="module-header">
+                            <h1 class="glitch-title">画外音 Voice Over</h1>
+                            <p class="ui-subtitle">现实镜像中的你</p>
+                        </div>
+                        <div class="vo-text">${voice_over_content}</div>
+                    </section>
+                    <div class="glint-trigger" onclick="unlockNextPhase(4, this)"></div>
+                </div>
+
+                <!-- PHASE 4: SPIRIT NEGATIVE -->
+                <div class="phase-screen is-locked" id="phase-4">
+                    <section class="archive-section">
+                        <div class="module-header">
+                            <h1 class="glitch-title">精神底片 Spirit Negative</h1>
+                            <p class="ui-subtitle">潜意识运行法则与哲学溯源</p>
+                        </div>
+                        <div class="archive-card-wrap spirit-negative-wrap">
+                            <div class="log-entry">
+                                <div class="phil-title">// ${philosophy_term_A}</div>
+                                <div class="phil-content">${philosophy_context_A}</div>
+                            </div>
+                            <div class="log-entry">
+                                <div class="phil-title">// ${philosophy_term_B}</div>
+                                <div class="phil-content">${philosophy_context_B}</div>
+                            </div>
+                        </div>
+                    </section>
+                    <div class="glint-trigger" onclick="unlockNextPhase(5, this)"></div>
+                </div>
+
+                <!-- PHASE 5: DIRECTOR'S CUT -->
+                <div class="phase-screen is-locked is-locked-navigation" id="phase-5">
+                    <section class="archive-section">
+                        <div class="module-header">
+                            <h1 class="glitch-title">导演剪辑室 Director's Cut</h1>
+                            <p class="ui-subtitle">隐秘恐惧、宿命偏转与灵魂片单</p>
+                        </div>
+
+                        <!-- 脚本加载 -->
+                        <div class="dc-module-item" id="dc-macguffin">
+                            <div class="log-entry">
+                                <div class="sub-module-title">> 灵魂麦高芬</div>
+                                <div class="module-desc">麦高芬为电影术语，指代推动人物行为的隐秘恐惧或虚幻渴望，揭示你内心最深处的心理黑洞</div>
+
+                                <div class="dc-interaction-zone">
+                                    <div class="event-horizon-wrap">
+                                        <div class="black-hole gargantua" id="bh-trigger">
+                                            <!-- 新增包裹层，用于承载整体坍缩动画，而不干扰内部的撕裂抖动 -->
+                                            <div class="bh-core-container">
+                                                <div class="singularity"></div>
+                                                <div class="event-horizon-glow"></div>
+                                            </div>
+                                            <div class="accretion-ring-horizontal"></div>
+                                            <div class="bh-hint">长按黑洞以同步</div>
+                                            <div class="explosion-shockwave"></div>
+                                            <div class="explosion-flash"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="log-body macguffin-text" id="macguffin-content">
+                                        ${macguffin_content}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dc-module-item" id="dc-ending">
+                            <div class="log-entry">
+                                <div class="sub-module-title">> 被剪掉的结局</div>
+                                <div class="module-desc">另一种可能的人生</div>
+                                <div class="ending-reveal-container">
+                                    <div class="log-body ending-content revealed" id="ending-body">
+                                        ${deleted_ending_logic}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. 专属放映室 (初始隐藏) -->
+                        <div class="dc-module-item" id="dc-screening">
+                            <div class="log-entry movie-projector-entry">
+                                <div class="sub-module-title projector-trigger" onclick="toggleMovieProjector(this)">
+                                    <span class="film-reel"></span> 专属放映室
+                                </div>
+                                <div class="movie-list-unroll">
+                                    <div class="movie-sub-section">
+                                        <div class="movie-sub-title">// 剧本溯源</div>
+                                        <ul class="movie-list">
+                                            <li>${script_source}</li>
+                                        </ul>
+                                    </div>
+                                    <div class="movie-sub-section">
+                                        <div class="movie-sub-title">// 平行剧目</div>
+                                        <ul class="movie-list">
+                                            <li>${rec_movie_1}</li>
+                                            <li>${rec_movie_2}</li>
+                                            <li>${rec_movie_3}</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <div class="settlement-footer">
+                        <div class="glint-trigger" onclick="unlockNextPhase(6, this)"></div>
+                    </div>
+                </div>
+
+                <!-- PHASE 6: FINAL ACT (THE TAIL) -->
+                <div class="phase-screen is-locked" id="phase-6">
+                    <section class="final-act-module">
+                        <!-- 1. 落幕词 (Epilogue) -->
+                        <div class="epilogue-container">
+                            <div class="epilogue-text">
+                                <p
+                                    style="font-family: 'Roboto Mono', monospace; letter-spacing: 5px; color: var(--dim); margin-bottom: 20px;">
+                                    [ CUT. ]</p>
+                                <p>剧本推演结束。</p>
+                                <p>这只是一场试镜，</p>
+                                <p>但在现实里，</p>
+                                <p>你得继续演好你自己。</p>
+                            </div>
+                        </div>
+
+                        <!-- 2. 交互动作 (Actions) -->
+                        <div class="final-actions">
+                            <!-- 1. 打印高光片段 (场记板) -->
+                            <div class="action-item-wrapper" id="btn-snippet" onclick="triggerAction('snippet')">
+                                <div class="action-info">
+                                    <div class="action-icon-box">
+                                        <div class="clapper-icon"></div>
+                                    </div>
+                                    <div class="action-cn">打印高光片段</div>
+                                    <div class="action-en">PRINT HIGHLIGHTS</div>
+                                </div>
+                            </div>
+
+                            <!-- 2. 保存完整剧本 (档案) -->
+                            <div class="action-item-wrapper" id="btn-full" onclick="triggerAction('full')">
+                                <div class="action-info">
+                                    <div class="action-icon-box">
+                                        <div class="archive-icon"></div>
+                                    </div>
+                                    <div class="action-cn">保存完整剧本</div>
+                                    <div class="action-en">SAVE FULL ARCHIVE</div>
+                                </div>
+                            </div>
+
+                            <div class="social-cta">
+                                带着你的剧照海报，去小红书寻找同剧组的搭档吧
+                            </div>
+
+                            <div class="action-links">
+                                <a href="javascript:void(0)" class="action-link film-strip-link"
+                                    onclick="openCast()">翻阅卡司</a>
+                                <a href="javascript:location.reload()" class="action-link film-strip-link">剧本重写</a>
+                            </div>
+                        </div>
+
+                        <!-- 3. 剧本围读 (Script Reading) -->
+                        <div class="comments-section" id="phase-comments">
+                            <div class="module-header">
+                                <h1 class="glitch-title">剧本围读 Script Reading</h1>
+                                <p class="ui-subtitle">关于你的人生剧本，你有什么想说的...</p>
+                            </div>
+
+                            <div class="comment-form">
+                                <input type="text" id="comment-author" placeholder="代号 (可选)">
+                                <textarea id="comment-text" rows="3" placeholder="记录你的感悟..."></textarea>
+                                <button class="submit-comment-btn" onclick="submitComment()">提交修改</button>
+                            </div>
+
+                            <div class="comment-controls">
+                                <div class="filter-tabs">
+                                    <button class="filter-btn active" onclick="setCommentFilter('all')">全部批注</button>
+                                    <button class="filter-btn" onclick="setCommentFilter('same')">相同剧组</button>
+                                </div>
+                                <div class="sort-box">
+                                    <select class="sort-select">
+                                        <option>最新收录 ↓</option>
+                                        <option>最早收录 ↑</option>
+                                        <option>随机漫游</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <p class="comment-count" id="unlocked-count-comments">已收录 0 份批注</p>
+
+                            <div class="comments-archive-frame">
+                                <div class="comments-list" id="comments-list"></div>
+                                <div class="pagination-controls">
+                                    <button class="pag-btn" id="prev-page" onclick="changePage(-1)">[ 上一页 ]</button>
+                                    <span class="pag-info" id="page-info">1 / 1</span>
+                                    <button class="pag-btn" id="next-page" onclick="changePage(1)">[ 下一页 ]</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. 版权声明 (Copyright) -->
+                        <footer class="final-footer">
+                            <div class="credits-divider"></div>
+                            <div class="credits-block">
+                                <p class="credit-notice">原创作品 · 抄袭必究</p>
+                                <p class="credit-role">技术支持 : who-ology</p>
+                                <p class="credit-main">© 2026 who-ology<br>Created by Gemini & Antigravity</p>
+                                <p class="credit-social">小红书 · @who-ology</p>
+                            </div>
+                        </footer>
+
+
+                </div>
+            </div>
+        </main>
+    </div> <!-- END of main-scroll-container -->
+
+    <div id="drawer" class="decision-matrix">
+        <div class="drawer-header">
+            <span class="close-hint">点击外部返回题目</span>
+            <div class="handle"></div>
+        </div>
+        <div class="scroll-area" id="options-list"></div>
+    </div>
+
+    <!-- 专用：黑洞撕裂滤镜 -->
+    <svg style="position: absolute; width: 0; height: 0;" aria-hidden="true">
+        <filter id="bh-jagged-glitch">
+            <feTurbulence type="fractalNoise" baseFrequency="0.01 0.15" numOctaves="3" seed="1" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="18" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+    </svg>
+
+    <!-- 【全剧本名录 / 翻阅卡司 Overlay】 -->
+    <div id="cast-overlay" class="cast-overlay">
+        <div class="cast-close-btn" onclick="closeCast()">&times;</div>
+
+        <!-- 矩阵视图 (Grid Matrix) -->
+        <div id="cast-matrix-view" class="cast-matrix-view">
+            <div class="cast-header">
+                <div class="cast-title">精神卡司名录<br><span>MENTAL CAST INDEX</span></div>
+                <div class="cast-stats">已解锁档案: <span id="unlocked-count">0</span> / 56</div>
+            </div>
+            <div id="cast-grid" class="cast-grid">
+                <!-- JS 动态填充 56 个格子 -->
+            </div>
+        </div>
+
+        <!-- 详情投影视图 (Detail Projection) -->
+        <div id="cast-detail-view" class="cast-detail-view" onclick="closeCastDetail()">
+            <div class="projection-light"></div>
+            <div class="detail-content">
+                <div class="cast-detail-close" onclick="closeCastDetail()">&times;</div>
+                <div class="detail-image-box">
+                    <img id="detail-img" src="" alt="">
+                </div>
+                <div class="detail-info">
+                    <div id="detail-name" class="detail-name"></div>
+                    <div id="detail-code" class="detail-code"></div>
+                    <div id="detail-slogan" class="detail-slogan"></div>
+                    <div id="lock-hint" class="lock-hint">[ 数据损坏 / 权限不足 ]</div>
+                </div>
+            </div>
+            <div class="detail-footer">点击空白处返回名录</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <div class="crt-global-overlay"></div>
+</body>
+
+</html>
