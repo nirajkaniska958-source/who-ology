@@ -4585,7 +4585,8 @@ body.lock-scroll {
     text-transform: uppercase;
     pointer-events: none;
 }
-/* ?? ȫ��Ƶ����ʾ */
+
+/* ?? ȫ��Ƶ����ʾ */
 .rarity-stat-box {
     margin-top: 15px;
     display: flex;
@@ -4614,13 +4615,92 @@ body.lock-scroll {
     letter-spacing: 1px;
 }
 
-.global-stat-divider {
-    margin: 0 10px;
-    color: rgba(255, 255, 255, 0.1);
-    font-weight: 100;
-}
 
 #total-global-confirmations {
     color: #e9e9e9;
-    font-family: 'Roboto Mono', monospace;
+    font-family: '' Roboto Mono'', monospace;
+}
+
+/* 🌟 截图专用模式 (Capture Mode) */
+body.is-capturing .glint-trigger,
+body.is-capturing .hairline,
+body.is-capturing .spirit-negative-wrap::before {
+    display: none !important;
+}
+
+body.is-capturing #card-capture-area,
+body.is-capturing .phase-screen,
+body.is-capturing .settlement-content {
+    background: #000000 !important;
+}
+
+/* 🌟 导演剪辑室截图深度修复 (CSS 终极压制) */
+body.is-capturing .dc-module-item,
+body.is-capturing .dc-module-item *,
+body.is-capturing .log-entry,
+body.is-capturing .movie-projector-entry {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    filter: none !important;
+}
+
+body.is-capturing .movie-list {
+    display: block !important;
+    column-count: 1 !important;
+    padding: 0 !important;
+    margin: 10px 0 !important;
+    width: 100% !important;
+}
+
+body.is-capturing .movie-list li {
+    display: block !important;
+    float: none !important;
+    clear: both !important;
+    position: static !important;
+    width: 100% !important;
+    text-align: left !important;
+    padding: 8px 0 !important;
+    margin: 5px 0 10px 0 !important;
+    color: #ffffff !important;
+    list-style: none !important;
+    line-height: 1.5 !important;
+}
+
+body.is-capturing .screenshot-header {
+    display: flex !important;
+    border: none !important;
+}
+
+/* 隐藏所有 OSD 栏的底边线伪元素 */
+body.is-capturing .osd-bar::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* 强制去掉所有边框 */
+body.is-capturing .osd-bar {
+    border: none !important;
+}
+
+/* 🌟 截图预览弹窗样式 */
+#screenshot-img {
+    max-height: 80vh !important;
+    width: auto !important;
+    object-fit: contain;
+    border: 1px solid #333;
+    background: #000;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 1);
+}
+/* 🌟 结算页 Header 强力修饰 */
+body.in-settlement #q-id {
+    font-family: 'Roboto Mono', 'Courier New', monospace;
+    letter-spacing: 1px;
+    color: var(--dim);
+}
+
+body.in-settlement #clock {
+    letter-spacing: 2px;
+    font-weight: bold;
 }

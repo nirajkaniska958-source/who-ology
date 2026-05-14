@@ -140,7 +140,12 @@
 
         <!-- ── 结算页 ── -->
         <main id="settlement-viewport" class="settlement-viewport hidden">
-            <div class="settlement-content">
+            <div class="settlement-content" id="card-capture-area">
+                <!-- 🌟 截图专用 Header -->
+                <header class="osd-bar screenshot-header" style="position: static; margin-bottom: 20px; display: none; background: #000;">
+                    <div class="osd-left" id="screenshot-time">00:00:00</div>
+                    <div class="osd-right">who-ology</div>
+                </header>
 
                 <!-- 区块 1：首屏取景器 (Hero Viewfinder) -->
                 <section class="viewfinder-module" id="phase-1">
@@ -162,7 +167,7 @@
                     </div>
 
                     <!-- 底部：意境 Slogan -->
-                    <div class="hero-footer-info">
+                    <div class="hero-footer-info" id="short-card-end">
                         <div class="hero-slogan">${slogan_text}</div>
                     </div>
 
@@ -417,16 +422,6 @@
                                 </div>
                             </div>
 
-                            <!-- 2. 保存完整剧本 (档案) -->
-                            <div class="action-item-wrapper" id="btn-full" onclick="triggerAction('full')">
-                                <div class="action-info">
-                                    <div class="action-icon-box">
-                                        <div class="archive-icon"></div>
-                                    </div>
-                                    <div class="action-cn">保存完整剧本</div>
-                                    <div class="action-en">SAVE FULL ARCHIVE</div>
-                                </div>
-                            </div>
 
                             <div class="social-cta">
                                 带着你的剧照海报，去小红书寻找同剧组的搭档吧
@@ -546,14 +541,14 @@
     </div>
 
     <!-- 【截图预览弹窗】 -->
-    <div id="screenshot-modal" class="cast-overlay" style="background: rgba(0,0,0,0.95); z-index: 3000; display: none;">
+    <div id="screenshot-modal" class="cast-overlay" style="background: rgba(0,0,0,0.98); z-index: 3000; display: none;">
         <div class="cast-close-btn" onclick="closeScreenshotModal()">&times;</div>
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 20px;">
-            <p style="color: #aaa; font-size: 0.8rem; margin-bottom: 20px; letter-spacing: 2px;">[ 长按图片保存至相册 ]</p>
-            <div id="screenshot-result-container" style="width: 100%; max-height: 70vh; overflow-y: auto; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5);">
-                <img id="screenshot-img" src="" style="width: 100%; height: auto; display: block; margin: 0 auto;">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; box-sizing: border-box;">
+            <p style="color: #666; font-size: 0.7rem; margin-bottom: 15px; letter-spacing: 2px;">[ 长按图片保存至相册 ]</p>
+            <div id="screenshot-result-container" style="width: 100%; max-height: 80vh; display: flex; align-items: flex-start; justify-content: center; overflow: hidden;">
+                <img id="screenshot-img" src="" style="max-width: 100%; max-height: 80vh; object-fit: contain; border: 1px solid #333; background: #000;">
             </div>
-            <button class="pag-btn" style="margin-top: 30px; padding: 10px 40px;" onclick="closeScreenshotModal()">[ 返回剧本 ]</button>
+            <button class="pag-btn" style="margin-top: 25px; padding: 8px 30px; font-size: 0.8rem;" onclick="closeScreenshotModal()">[ 返回剧本 ]</button>
         </div>
     </div>
 

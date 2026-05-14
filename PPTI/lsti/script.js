@@ -2521,7 +2521,7 @@ function viewPastPerformance() {
         } else {
             alert("系统尚未捕获到您的人格切片，请先开启剧本演练。");
             // 不进行任何跳转，留在原地
-            location.reload(); 
+            location.reload();
         }
     });
 }
@@ -2821,7 +2821,17 @@ function nextQuestion(e) {
 }
 
 function openDrawer() { document.getElementById('drawer').classList.add('open'); }
-setInterval(() => { document.getElementById('clock').innerText = new Date().toTimeString().split(' ')[0]; }, 1000);
+setInterval(() => {
+    const clockEl = document.getElementById('clock');
+    const qIdEl = document.getElementById('q-id');
+    const timeStr = new Date().toTimeString().split(' ')[0];
+    if (document.body.classList.contains('in-settlement')) {
+        if (qIdEl && window.currentSettlementTC) qIdEl.innerText = window.currentSettlementTC;
+        if (clockEl && clockEl.innerText !== 'who-ology') clockEl.innerText = 'who-ology';
+    } else {
+        if (clockEl) clockEl.innerText = timeStr;
+    }
+}, 1000);
 
 function prevQuestion() {
     const gate = document.getElementById('shutter-gate');
@@ -2977,7 +2987,7 @@ function showSettlementPage(input = null) {
         // 3. 正常测试流程：实时计算并存盘
         result = calculateResult();
         localStorage.setItem('ppti_last_full_result', JSON.stringify(result));
-        
+
         // 🌟 [新增] 静默上传结果到云端后台 (代号 + 姓名)
         if (result && result.character) {
             logResultToCloudflare(result.character.archetype, result.character.name);
@@ -3049,18 +3059,19 @@ function showSettlementPage(input = null) {
     };
     const campDesc = campDescs[character.id] || "（数据已加密，无法读取深层侧写。）";
 
-    function generateSMPTE() {
-        let now = new Date();
-        let h = String(now.getHours()).padStart(2, '0');
-        let m = String(now.getMinutes()).padStart(2, '0');
-        let s = String(now.getSeconds()).padStart(2, '0');
-        let f = String(Math.floor(Math.random() * 24)).padStart(2, '0');
-        return `[TC ${h}:${m}:${s}:${f}]`;
-    }
+    // 🌟 核心：生成一个固定的 TC 档案编号
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    const f = String(Math.floor(Math.random() * 24)).padStart(2, '0');
+    const staticTCCode = `[TC ${h}:${m}:${s}:${f}]`;
+    window.currentSettlementTC = staticTCCode; // 存为全局变量供截图使用
 
-    let smpteCode = generateSMPTE();
-    const headerEl = document.getElementById('q-id');
-    if (headerEl) headerEl.innerText = smpteCode + "";
+    const clockEl = document.getElementById('clock');
+    const qIdEl = document.getElementById('q-id');
+    if (qIdEl) qIdEl.innerText = staticTCCode;
+    if (clockEl) clockEl.innerText = 'who-ology';
 
     const settlement = document.getElementById('settlement-viewport');
     let html = settlement.innerHTML;
@@ -3115,8 +3126,8 @@ function showSettlementPage(input = null) {
     html = html.replace(/\${rec_movie_2}/g, movies[1] || "");
     html = html.replace(/\${rec_movie_3}/g, movies[2] || "");
 
-    // Also replace smpte_code in the HTML block if it's there
-    html = html.replace(/\${smpte_code}/g, smpteCode);
+    // 同时也替换 HTML 块中的 smpte_code（如果存在）
+    html = html.replace(/\${smpte_code}/g, staticTCCode);
 
     settlement.innerHTML = html;
     settlement.classList.remove('hidden');
@@ -3536,82 +3547,91 @@ function initRedactedText(containerId) {
 // ─── 【收尾模块交互逻辑 (Final Act Logic)】 ───
 
 // 统一动作触发逻辑
+// 统一动作触发逻辑
 window.triggerAction = function (type) {
-    const btn = type === 'snippet' ? document.getElementById('btn-snippet') : document.getElementById('btn-full');
+    if (type !== 'snippet') return;
+    const btn = document.getElementById('btn-snippet');
     if (!btn) return;
 
-    // 1. 触发动效类
-    const animClass = type === 'snippet' ? 'clapping' : 'archiving';
-    btn.classList.add(animClass);
-
-    // 2. 震动反馈
+    btn.classList.add('clapping');
     if (window.navigator.vibrate) window.navigator.vibrate(20);
 
-    // 3. 延迟触发逻辑 (增加到 800ms，确保动画和变红状态被充分观察)
     setTimeout(() => {
-        if (type === 'snippet') {
-            captureSnippet();
-        } else {
-            captureFull();
-        }
-        // 移除动效类以供下次点击
-        btn.classList.remove(animClass);
-    }, 800);
+        generateCard();
+        btn.classList.remove('clapping');
+    }, 600);
 };
 
-// 模拟截图功能
-// 🌟 核心截图逻辑：高光片段
-window.captureSnippet = function () {
-    const target = document.getElementById('phase-1');
-    if (!target) return;
+// 🌟 [简化版] 核心截图引擎 (仅保留高光片段)
+window.generateCard = function () {
+    const textSnippet = document.querySelector('#btn-snippet .action-cn');
+    const originalShortText = textSnippet ? textSnippet.innerText : "打印高光片段";
+
+    if (textSnippet) textSnippet.innerText = '[ 提取中... ]';
     
-    // 截图前微调：确保 REC 动画不会卡在半透明状态
-    const recDot = target.querySelector('.rec-dot');
+    const ssHeader = document.querySelector('.screenshot-header');
+    if (ssHeader) {
+        ssHeader.style.display = 'flex';
+        const ssTime = document.getElementById('screenshot-time');
+        const ssRight = ssHeader.querySelector('.osd-right');
+        
+        // 🌟 截图 Header 同步：使用结算页固定的 TC 编号
+        if (ssTime) ssTime.innerText = window.currentSettlementTC || "00:00:00";
+        if (ssRight) ssRight.innerText = "who-ology";
+    }
+
+    const captureArea = document.getElementById('card-capture-area');
+    if (!captureArea) return;
+
+    // 激活截图模式
+    document.body.classList.add('is-capturing');
+    const recDot = document.querySelector('.rec-dot');
     if (recDot) recDot.style.animation = 'none';
 
-    html2canvas(target, {
-        backgroundColor: '#0a0a0a',
-        scale: 2, // 提高清晰度
-        useCORS: true, // 允许跨域图片
-        logging: false
-    }).then(canvas => {
-        showScreenshotResult(canvas.toDataURL("image/png"));
-        if (recDot) recDot.style.animation = ''; // 恢复动画
-    });
+    setTimeout(() => {
+        let finalHeight = captureArea.scrollHeight;
+        
+        // 精准高度计算 (仅使用 short-card-end)
+        const endElement = document.getElementById('short-card-end');
+        if (endElement) {
+            const rect = endElement.getBoundingClientRect();
+            const containerRect = captureArea.getBoundingClientRect();
+            finalHeight = (rect.bottom - containerRect.top) + 20; 
+        }
+
+        html2canvas(captureArea, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#000000',
+            height: finalHeight,
+            scrollX: 0, 
+            scrollY: 0,
+            logging: false
+        }).then(canvas => {
+            const imgData = canvas.toDataURL('image/jpeg', 0.9);
+            const modal = document.getElementById('screenshot-modal');
+            const resultImg = document.getElementById('screenshot-img');
+            if (modal && resultImg) {
+                resultImg.src = imgData;
+                modal.style.display = 'block';
+                modal.classList.add('active');
+            }
+
+            // 恢复现场
+            document.body.classList.remove('is-capturing');
+            if (ssHeader) ssHeader.style.display = 'none';
+            if (textSnippet) textSnippet.innerText = originalShortText;
+            if (recDot) recDot.style.animation = '';
+        }).catch(err => {
+            console.error("Capture failed", err);
+            document.body.classList.remove('is-capturing');
+            if (ssHeader) ssHeader.style.display = 'none';
+            if (textSnippet) textSnippet.innerText = originalShortText;
+        });
+    }, 400);
 };
 
-// 🌟 核心截图逻辑：完整剧本 (长图)
-window.captureFull = function () {
-    const target = document.querySelector('.settlement-content');
-    if (!target) return;
-
-    // 长图截图前，确保所有 Phase 都是可见状态（即便被锁定了也要强制渲染）
-    const lockedPhases = document.querySelectorAll('.phase-screen.is-locked');
-    lockedPhases.forEach(p => p.style.opacity = '1');
-
-    html2canvas(target, {
-        backgroundColor: '#0a0a0a',
-        scale: 1.5, // 长图适当降低倍率防止内存溢出
-        useCORS: true,
-        logging: false,
-        windowHeight: target.scrollHeight // 捕捉完整高度
-    }).then(canvas => {
-        showScreenshotResult(canvas.toDataURL("image/png"));
-        lockedPhases.forEach(p => p.style.opacity = ''); // 恢复锁定状态
-    });
-};
-
-function showScreenshotResult(dataUrl) {
-    const modal = document.getElementById('screenshot-modal');
-    const img = document.getElementById('screenshot-img');
-    if (modal && img) {
-        img.src = dataUrl;
-        modal.style.display = 'block';
-        modal.classList.add('active');
-    }
-}
-
-window.closeScreenshotModal = function() {
+window.closeScreenshotModal = function () {
     const modal = document.getElementById('screenshot-modal');
     if (modal) {
         modal.style.display = 'none';
@@ -4148,7 +4168,7 @@ function renderComments() {
 }
 
 // 5. [新增] 结果统计上传
-window.logResultToCloudflare = async function(archetype, name) {
+window.logResultToCloudflare = async function (archetype, name) {
     if (!archetype) return;
     try {
         await fetch(WORKER_API_URL + "/log-result", {
@@ -4165,4 +4185,3 @@ window.logResultToCloudflare = async function(archetype, name) {
 window.addEventListener('load', () => {
     loadComments();
 });
-
