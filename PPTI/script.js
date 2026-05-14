@@ -62,6 +62,44 @@ let radarInstance = null;
 let isIntroSkipped = false;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 🌟 核心优化：秒回 Hub 且激活所有后续逻辑
+    const urlParams = new URLSearchParams(window.location.search);
+    const shouldSkip = urlParams.get('skipIntro') === 'true';
+
+    if (shouldSkip) {
+        const introOverlay = document.getElementById('intro-overlay');
+        const analyzingOverlay = document.getElementById('analyzing-overlay');
+        const hubPage = document.getElementById('hub-page');
+        
+        if (introOverlay) introOverlay.style.display = 'none';
+        if (analyzingOverlay) analyzingOverlay.style.display = 'none';
+        
+        if (hubPage) {
+            hubPage.classList.add('active');
+            hubPage.classList.add('start-animation');
+            hubPage.style.opacity = '1';
+            
+            // 🌟 关键：手动激活卡片显现观察器（复制自 enterApp 逻辑）
+            const cardContainer = document.getElementById('hub-split-container');
+            if (cardContainer) {
+                // 如果是秒回，我们直接让卡片进入显现状态
+                cardContainer.classList.add('card-entered');
+            }
+        }
+        
+        window.scrollTo(0, 0);
+        setTimeout(() => initGeoCanvas(), 100);
+        
+        document.getElementById('session-id').innerText = new Date().getTime().toString().slice(-8);
+        buildArchiveList();
+        
+        // 如果有 p5 画布也要初始化
+        if (document.getElementById('p5-canvas-container')) {
+            new p5(p5Sketch, document.getElementById('p5-canvas-container'));
+        }
+        return; 
+    }
+
     document.getElementById('session-id').innerText = new Date().getTime().toString().slice(-8);
 
     const detailsElement = document.querySelector('.smooth-details');
