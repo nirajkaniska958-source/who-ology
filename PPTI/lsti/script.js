@@ -2544,12 +2544,6 @@ function startTest() {
     });
 }
 
-function toggleTestMenu() {
-    const menu = document.getElementById('test-menu-wrapper');
-    const dropdown = document.getElementById('test-dropdown');
-    menu.classList.add('active');
-    dropdown.classList.add('show');
-}
 
 // 🌟 核心优化：律动提词器逻辑
 function initPrompter() {
@@ -3188,123 +3182,10 @@ function showSettlementPage(input = null) {
     }
 }
 
-// ─── 【测试菜单逻辑重构 - 二级分级版】 ───
-function initTestMenu() {
-    const hiddenContainer = document.getElementById('hidden-roles');
-    const standardContainer = document.getElementById('standard-archetypes');
-    if (!hiddenContainer || !standardContainer) return;
-
-    const archetypesMap = {}; // 存储原型分组
-
-    characters.forEach(role => {
-        const rid = parseInt(role.id);
-        if (rid >= 49 && rid <= 56) {
-            // 隐藏角色：直接显示姓名按钮
-            const item = document.createElement('div');
-            item.className = 'id-item hidden-style';
-            item.textContent = role.name;
-            item.onclick = (e) => { e.stopPropagation(); jumpToCharacter(rid); };
-            hiddenContainer.appendChild(item);
-        } else if (rid >= 1 && rid <= 48) {
-            // 标准角色：按原型聚合
-            const type = role.archetype || "未定义原型";
-            if (!archetypesMap[type]) archetypesMap[type] = [];
-            archetypesMap[type].push(role);
-        }
-    });
-
-    // 生成二级分级 UI
-    Object.keys(archetypesMap).forEach(type => {
-        const groupDiv = document.createElement('div');
-        groupDiv.className = 'collapsible-group';
-
-        const header = document.createElement('div');
-        header.className = 'group-header';
-        header.innerHTML = `${type} <span class="arrow">▼</span>`;
-        header.onclick = (e) => {
-            e.stopPropagation();
-            const content = groupDiv.querySelector('.group-content');
-            // 关闭其他已打开的组
-            document.querySelectorAll('.group-content').forEach(g => {
-                if (g !== content) g.classList.remove('active');
-            });
-            content.classList.toggle('active');
-        };
-
-        const content = document.createElement('div');
-        content.className = 'group-content name-list'; // 样式改为列表名
-
-        archetypesMap[type].forEach(role => {
-            const nameItem = document.createElement('div');
-            nameItem.className = 'name-item';
-            nameItem.textContent = `> ${role.name}`;
-            nameItem.onclick = (e) => { e.stopPropagation(); jumpToCharacter(role.id); };
-            content.appendChild(nameItem);
-        });
-
-        groupDiv.appendChild(header);
-        groupDiv.appendChild(content);
-        standardContainer.appendChild(groupDiv);
-    });
-}
-
-function jumpToCharacter(roleId) {
-    console.log("Debug: Jumping to Character ID", roleId);
-    // 1. 模拟全极值数据
-    userAnswers = Array(30).fill({ "越轨": 1, "介入": 1, "共生": 1, "守序": 1 });
-
-    // 2. 强制字符串匹配查找角色
-    const character = characters.find(c => String(c.id) === String(roleId));
-
-    if (character) {
-        // 3. 确保首页被隐藏
-        const viewport = document.querySelector('.viewport');
-        if (viewport) viewport.classList.add('hidden');
-
-        // 4. 执行渲染
-        showSettlementPage(character);
-
-        // 5. 点击后收起菜单（可选，如果你希望留在首页可以去掉这行）
-        document.querySelectorAll('.group-content').forEach(g => g.classList.remove('active'));
-    } else {
-        console.error("Error: Could not find character with ID", roleId);
-    }
-}
-
-// 彻底中和 skip-btn 上的旧逻辑，防止干扰跳转
-// 彻底接管所有跳过按钮逻辑
-function setupMenuTriggers() {
-    const wrapper = document.getElementById('test-menu-wrapper');
-    const skipBtn = document.getElementById('skip-btn');
-    const topTrigger = document.getElementById('top-skip-trigger');
-    const overlay = document.getElementById('menu-overlay');
-
-    const toggleMenu = (e) => {
-        if (e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        wrapper.classList.toggle('active');
-    };
-
-    if (skipBtn) skipBtn.onclick = toggleMenu;
-    if (topTrigger) topTrigger.onclick = toggleMenu;
-    if (overlay) overlay.onclick = toggleMenu; // 点击遮罩层关闭菜单
-}
 
 window.addEventListener('load', () => {
-    initTestMenu();
-    setupMenuTriggers();
 });
 
-window.showSettlement = function () {
-    if (userAnswers.length === 0) {
-        for (let i = 0; i < 30; i++) {
-            userAnswers[i] = { "越轨": 1, "介入": 1, "共生": 1, "守序": 1 };
-        }
-    }
-    showSettlementPage();
-};
 
 // ─── 专属放映室：放映机开关逻辑 ───
 window.toggleMovieProjector = function (trigger) {
