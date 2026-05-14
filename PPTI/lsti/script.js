@@ -2515,10 +2515,13 @@ function viewPastPerformance() {
             try {
                 showSettlementPage(JSON.parse(lastResult));
             } catch (e) {
-                showSettlementPage();
+                alert("档案同步异常，请重新进行测试。");
+                location.reload();
             }
         } else {
-            showSettlementPage();
+            alert("系统尚未捕获到您的人格切片，请先开启剧本演练。");
+            // 不进行任何跳转，留在原地
+            location.reload(); 
         }
     });
 }
@@ -3557,12 +3560,63 @@ window.triggerAction = function (type) {
 };
 
 // 模拟截图功能
+// 🌟 核心截图逻辑：高光片段
 window.captureSnippet = function () {
-    alert("正在打印高光片段...\n(提示：由于浏览器安全限制，请手动长按屏幕或使用系统截图保存当前精选区域)");
+    const target = document.getElementById('phase-1');
+    if (!target) return;
+    
+    // 截图前微调：确保 REC 动画不会卡在半透明状态
+    const recDot = target.querySelector('.rec-dot');
+    if (recDot) recDot.style.animation = 'none';
+
+    html2canvas(target, {
+        backgroundColor: '#0a0a0a',
+        scale: 2, // 提高清晰度
+        useCORS: true, // 允许跨域图片
+        logging: false
+    }).then(canvas => {
+        showScreenshotResult(canvas.toDataURL("image/png"));
+        if (recDot) recDot.style.animation = ''; // 恢复动画
+    });
 };
 
+// 🌟 核心截图逻辑：完整剧本 (长图)
 window.captureFull = function () {
-    alert("正在封存完整剧本...\n(提示：剧本较长，建议使用系统“滚动截屏”功能获取全量数据)");
+    const target = document.querySelector('.settlement-content');
+    if (!target) return;
+
+    // 长图截图前，确保所有 Phase 都是可见状态（即便被锁定了也要强制渲染）
+    const lockedPhases = document.querySelectorAll('.phase-screen.is-locked');
+    lockedPhases.forEach(p => p.style.opacity = '1');
+
+    html2canvas(target, {
+        backgroundColor: '#0a0a0a',
+        scale: 1.5, // 长图适当降低倍率防止内存溢出
+        useCORS: true,
+        logging: false,
+        windowHeight: target.scrollHeight // 捕捉完整高度
+    }).then(canvas => {
+        showScreenshotResult(canvas.toDataURL("image/png"));
+        lockedPhases.forEach(p => p.style.opacity = ''); // 恢复锁定状态
+    });
+};
+
+function showScreenshotResult(dataUrl) {
+    const modal = document.getElementById('screenshot-modal');
+    const img = document.getElementById('screenshot-img');
+    if (modal && img) {
+        img.src = dataUrl;
+        modal.style.display = 'block';
+        modal.classList.add('active');
+    }
+}
+
+window.closeScreenshotModal = function() {
+    const modal = document.getElementById('screenshot-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('active');
+    }
 };
 
 // ─── 【全剧本名录 / Cast Index Logic】 ───
