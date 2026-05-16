@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="LSTI Archive">
-    <link rel="apple-touch-icon" href="image/1.png"> 
+    <link rel="apple-touch-icon" href="image/1.png">
 
     <link rel="stylesheet" href="style.css">
     <!-- 引入截图插件 -->
@@ -145,10 +145,25 @@
         </main>
 
         <!-- ── 结算页 ── -->
+        <!-- 幕布转场 (Act Transition) -->
+        <div id="act-overlay" class="hidden">
+            <div class="act-content-wrapper">
+                <div class="act-header">
+                    <span class="act-mark">CHAPTER</span>
+                    <span id="act-num" class="act-num">01</span>
+                </div>
+                <h1 id="act-title" class="act-title">认知的囚笼</h1>
+                <div class="act-divider"></div>
+                <p id="act-subtitle" class="act-subtitle">你看到的真相，是真相吗？</p>
+            </div>
+            <div class="act-enter-hint">[ 点击屏幕开启下一幕 ]</div>
+        </div>
+
         <main id="settlement-viewport" class="settlement-viewport hidden">
             <div class="settlement-content" id="card-capture-area">
                 <!-- 🌟 截图专用 Header -->
-                <header class="osd-bar screenshot-header" style="position: static; margin-bottom: 20px; display: none; background: #000;">
+                <header class="osd-bar screenshot-header"
+                    style="position: static; margin-bottom: 20px; display: none; background: #000;">
                     <div class="osd-left" id="screenshot-time">00:00:00</div>
                     <div class="osd-right">who-ology</div>
                 </header>
@@ -285,7 +300,8 @@
                         </div>
                     </section>
                     <div class="glint-trigger" onclick="unlockNextPhase(3, this)">
-                        <span class="glint-hint"> 点击解锁 </span>
+                        <span class="glint-arrow">▼</span>
+                        <span class="glint-hint">[点击解锁]</span>
                     </div>
                 </div>
 
@@ -298,7 +314,10 @@
                         </div>
                         <div class="vo-text">${voice_over_content}</div>
                     </section>
-                    <div class="glint-trigger" onclick="unlockNextPhase(4, this)"></div>
+                    <div class="glint-trigger" onclick="unlockNextPhase(4, this)">
+                        <span class="glint-arrow">▼</span>
+                        <span class="glint-hint">[点击解锁]</span>
+                    </div>
                 </div>
 
                 <!-- PHASE 4: SPIRIT NEGATIVE -->
@@ -309,17 +328,75 @@
                             <p class="ui-subtitle">潜意识运行法则与哲学溯源</p>
                         </div>
                         <div class="archive-card-wrap spirit-negative-wrap">
+
                             <div class="log-entry">
                                 <div class="phil-title">// ${philosophy_term_A}</div>
-                                <div class="phil-content">${philosophy_context_A}</div>
+
+                                <div class="phil-accordion-wrapper">
+                                    <div class="phil-accordion-item">
+                                        <div class="phil-accordion-header" onclick="togglePhilAccordion(this)">
+                                            <span class="phil-acc-icon">+</span> 思想底色
+                                        </div>
+                                        <div class="phil-accordion-content">
+                                            <div class="phil-acc-inner">${philosophy_context_A_bg}</div>
+                                        </div>
+                                    </div>
+                                    <div class="phil-accordion-item">
+                                        <div class="phil-accordion-header" onclick="togglePhilAccordion(this)">
+                                            <span class="phil-acc-icon">+</span> 银幕显影
+                                        </div>
+                                        <div class="phil-accordion-content">
+                                            <div class="phil-acc-inner">${philosophy_context_A_sc}</div>
+                                        </div>
+                                    </div>
+                                    <div class="phil-accordion-item">
+                                        <div class="phil-accordion-header" onclick="togglePhilAccordion(this)">
+                                            <span class="phil-acc-icon">+</span> 灵魂侧写
+                                        </div>
+                                        <div class="phil-accordion-content">
+                                            <div class="phil-acc-inner">${philosophy_context_A_so}</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+
                             <div class="log-entry">
                                 <div class="phil-title">// ${philosophy_term_B}</div>
-                                <div class="phil-content">${philosophy_context_B}</div>
+
+                                <div class="phil-accordion-wrapper">
+                                    <div class="phil-accordion-item">
+                                        <div class="phil-accordion-header" onclick="togglePhilAccordion(this)">
+                                            <span class="phil-acc-icon">+</span> 思想底色
+                                        </div>
+                                        <div class="phil-accordion-content">
+                                            <div class="phil-acc-inner">${philosophy_context_B_bg}</div>
+                                        </div>
+                                    </div>
+                                    <div class="phil-accordion-item">
+                                        <div class="phil-accordion-header" onclick="togglePhilAccordion(this)">
+                                            <span class="phil-acc-icon">+</span> 银幕显影
+                                        </div>
+                                        <div class="phil-accordion-content">
+                                            <div class="phil-acc-inner">${philosophy_context_B_sc}</div>
+                                        </div>
+                                    </div>
+                                    <div class="phil-accordion-item">
+                                        <div class="phil-accordion-header" onclick="togglePhilAccordion(this)">
+                                            <span class="phil-acc-icon">+</span> 灵魂侧写
+                                        </div>
+                                        <div class="phil-accordion-content">
+                                            <div class="phil-acc-inner">${philosophy_context_B_so}</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+
                         </div>
                     </section>
-                    <div class="glint-trigger" onclick="unlockNextPhase(5, this)"></div>
+                    <div class="glint-trigger" onclick="unlockNextPhase(5, this)">
+                        <span class="glint-arrow">▼</span>
+                        <span class="glint-hint">[点击解锁]</span>
+                    </div>
                 </div>
 
                 <!-- PHASE 5: DIRECTOR'S CUT -->
@@ -378,9 +455,20 @@
                                 <div class="movie-list-unroll">
                                     <div class="movie-sub-section">
                                         <div class="movie-sub-title">// 剧本溯源</div>
-                                        <ul class="movie-list">
-                                            <li>${script_source}</li>
-                                        </ul>
+                                        <div class="script-source-detail">
+                                            <div class="source-item">
+                                                <span class="source-label">作品</span>
+                                                <div class="source-value">${script_source}</div>
+                                            </div>
+                                            <div class="source-item">
+                                                <span class="source-label">影片背景</span>
+                                                <div class="source-value">${movie_bg}</div>
+                                            </div>
+                                            <div class="source-item">
+                                                <span class="source-label">主角轨迹</span>
+                                                <div class="source-value">${char_trajectory}</div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="movie-sub-section">
                                         <div class="movie-sub-title">// 平行剧目</div>
@@ -395,7 +483,10 @@
                         </div>
                     </section>
                     <div class="settlement-footer">
-                        <div class="glint-trigger" onclick="unlockNextPhase(6, this)"></div>
+                        <div class="glint-trigger" onclick="unlockNextPhase(6, this)">
+                            <span class="glint-arrow">▼</span>
+                            <span class="glint-hint">[落幕]</span>
+                        </div>
                     </div>
                 </div>
 
@@ -549,12 +640,16 @@
     <!-- 【截图预览弹窗】 -->
     <div id="screenshot-modal" class="cast-overlay" style="background: rgba(0,0,0,0.98); z-index: 3000; display: none;">
         <div class="cast-close-btn" onclick="closeScreenshotModal()">&times;</div>
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; box-sizing: border-box;">
+        <div
+            style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; box-sizing: border-box;">
             <p style="color: #666; font-size: 0.7rem; margin-bottom: 15px; letter-spacing: 2px;">[ 长按图片保存至相册 ]</p>
-            <div id="screenshot-result-container" style="width: 100%; max-height: 80vh; display: flex; align-items: flex-start; justify-content: center; overflow: hidden;">
-                <img id="screenshot-img" src="" style="max-width: 100%; max-height: 80vh; object-fit: contain; border: 1px solid #333; background: #000;">
+            <div id="screenshot-result-container"
+                style="width: 100%; max-height: 80vh; display: flex; align-items: flex-start; justify-content: center; overflow: hidden;">
+                <img id="screenshot-img" src=""
+                    style="max-width: 100%; max-height: 80vh; object-fit: contain; border: 1px solid #333; background: #000;">
             </div>
-            <button class="pag-btn" style="margin-top: 25px; padding: 8px 30px; font-size: 0.8rem;" onclick="closeScreenshotModal()">[ 返回剧本 ]</button>
+            <button class="pag-btn" style="margin-top: 25px; padding: 8px 30px; font-size: 0.8rem;"
+                onclick="closeScreenshotModal()">[ 返回剧本 ]</button>
         </div>
     </div>
 

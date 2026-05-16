@@ -48,7 +48,7 @@ html {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1000;
+    z-index: 20000;
     pointer-events: none;
 }
 
@@ -1512,42 +1512,79 @@ body.in-settlement .osd-bar {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 50px;
-    /* 压缩点击高度，减少误触面积 */
+    height: 80px;
+    /* 足够的高度容纳三角、文字、扫描线 */
     cursor: pointer;
     z-index: 100;
-    /* 降低权重，不遮挡卡司卡片 */
     background: transparent;
     -webkit-tap-highlight-color: transparent;
 }
 
-/* ─── 隐晦的解锁提示文字 ─── */
+/* ─── 解锁提示文字：绝对定位于白线上方 ─── */
 .glint-hint {
     position: absolute;
-    bottom: 20px;
-    /* 悬浮在光线正上方 */
+    bottom: 30px;
+    /* 白线(2px) + 扫描线区(40px) + 间距(10px) */
     left: 50%;
     transform: translateX(-50%);
     font-family: 'Roboto Mono', 'PingFang SC', monospace;
-    font-size: 10px;
-    color: rgba(255, 255, 255, 0.3);
-    /* 极度低调的半透明 */
-    letter-spacing: 4px;
+    font-size: 13px;
+    /* 加大字号 */
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 6px;
+    text-indent: 6px;
     white-space: nowrap;
     pointer-events: none;
-    /* 核心：防止文字遮挡用户的点击判定 */
-    animation: hint-breathe 3s infinite ease-in-out;
+    animation: hint-breathe 2.5s infinite ease-in-out;
 }
 
 @keyframes hint-breathe {
 
     0%,
     100% {
-        opacity: 0.1;
+        opacity: 0.35;
     }
 
     50% {
+        opacity: 1;
+        text-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
+    }
+}
+
+/* 倒三角引导元素 */
+.glint-arrow {
+    display: block;
+    position: absolute;
+    bottom: 50px;
+    /* 文字上方18px */
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+    line-height: 1;
+    animation: arrow-bounce 2.5s infinite ease-in-out;
+}
+
+@keyframes arrow-bounce {
+    0% {
+        transform: translateX(-50%) translateY(-2px);
+        opacity: 0;
+    }
+
+    30% {
         opacity: 0.6;
+    }
+
+    60% {
+        transform: translateX(-50%) translateY(2px);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(-50%) translateY(-2px);
+        opacity: 0;
     }
 }
 
@@ -1576,7 +1613,7 @@ body.in-settlement .osd-bar {
     box-shadow: 0 0 12px #ffffff;
 }
 
-/* 1. 静态白线：死死钉在底部，不参与呼吸动画 */
+/* 1. 静态白线：内敛、小半径发光 */
 .glint-trigger::before {
     content: "";
     position: absolute;
@@ -1585,39 +1622,60 @@ body.in-settlement .osd-bar {
     width: 100%;
     height: 1px;
     background: #FFFFFF;
-    box-shadow: 0 0 10px rgb(255, 255, 255);
+    /* 紧凑光晔，不嬽择 */
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.9), 0 0 8px rgba(255, 255, 255, 0.4);
     z-index: 2;
-    opacity: 0.8;
+    animation: line-pulse 3s infinite ease-in-out;
 }
 
-/* 2. 动态水平流光：紧凑、快速淡出且高度收缩的线条 */
+@keyframes line-pulse {
+
+    0%,
+    100% {
+        opacity: 0.5;
+        box-shadow: 0 0 3px rgba(255, 255, 255, 0.6);
+    }
+
+    50% {
+        opacity: 1;
+        box-shadow: 0 0 6px rgba(255, 255, 255, 1), 0 0 12px rgba(255, 255, 255, 0.4);
+    }
+}
+
+/* 2. 扫描线：底部最亮，向上持续衰减，无平台段 */
 .glint-trigger::after {
     content: "";
     position: absolute;
-    bottom: 2px;
+    bottom: 1px;
     left: 0;
     width: 100%;
-    height: 25px;
-    /* 压低总高度，减少视觉干扰 */
-    /* 紧凑的水平扫描线 */
+    height: 35px;
     background: repeating-linear-gradient(to top,
-            rgba(255, 255, 255, 0.952) 0px,
-            rgba(255, 255, 255, 0.116) 1px,
+            rgba(255, 255, 255, 0.7) 0px,
+            rgba(255, 255, 255, 0.05) 1px,
             transparent 1px,
             transparent 4px);
-
-    /* 6px 间距，更细腻 */
     background-size: 100% 4px;
-    /* 核心动画：加快流动速度 */
-    animation: lines-upward-flow 0.8s linear infinite;
-    /* 极致缩短：确保第二根线视觉上明显短于第一根，避开手机圆角干扰 */
-    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
-    /* 快速变暗：遮罩过渡更陡峭，线条在顶部迅速消失 */
-    -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 75%);
-    mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 75%);
+    animation: lines-upward-flow 0.7s linear infinite;
+    /*
+     * 多段遮罩：模拟指数衰减曲线
+     * 底部全亮 → 10%处尤为亮 → 中间持续减少 → 顶部消失
+     */
+    -webkit-mask-image: linear-gradient(to top,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 0.85) 15%,
+            rgba(0, 0, 0, 0.6) 30%,
+            rgba(0, 0, 0, 0.35) 50%,
+            rgba(0, 0, 0, 0.15) 70%,
+            rgba(0, 0, 0, 0) 100%);
+    mask-image: linear-gradient(to top,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 0.85) 15%,
+            rgba(0, 0, 0, 0.6) 30%,
+            rgba(0, 0, 0, 0.35) 50%,
+            rgba(0, 0, 0, 0.15) 70%,
+            rgba(0, 0, 0, 0) 100%);
     z-index: 1;
-    opacity: 0.8;
-    /* 降低整体亮度，保持低调 */
     pointer-events: none;
 }
 
@@ -2318,10 +2376,10 @@ body.in-settlement .osd-bar {
     /* 适当缩小缩进，为文字腾空间 */
     background: transparent;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: flex-start;
-    gap: 60px;
-    /* 增加板块间距，使布局更舒展 */
+    gap: 30px;
+    /* 垂直布局下缩小间距 */
     width: 100%;
     box-sizing: border-box;
 }
@@ -2674,12 +2732,15 @@ body.in-settlement .osd-bar {
     /* 初始模糊 */
 }
 
-/* 密集扫描线干扰层 (Noise Overlay) */
+/* 密集扫描线干扰层 (Noise Overlay) - 零卡顿修复版 */
 .spirit-negative-wrap::before {
     content: "";
     position: absolute;
-    inset: 0;
-    /* 黑色密集横线 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2500px;
+    /* 锁死超大高度，彻底切断随容器伸缩的重绘地狱 */
     background: repeating-linear-gradient(transparent 0,
             transparent 1px,
             rgba(0, 0, 0, 1) 1px,
@@ -2688,7 +2749,8 @@ body.in-settlement .osd-bar {
     z-index: 10;
     pointer-events: none;
     opacity: 0.8;
-    transition: transform 2.5s cubic-bezier(0.4, 0, 0.2, 1);
+    /* 增加 opacity 过渡，让它推下去后彻底消失 */
+    transition: transform 2.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 2.5s ease;
     transform: translateY(0);
 }
 
@@ -2721,8 +2783,10 @@ body.in-settlement .osd-bar {
 }
 
 
+/* 解码时，用固定的像素把它推走并隐藏 */
 .spirit-negative-wrap.is-decoding::before {
-    transform: translateY(100%);
+    transform: translateY(2500px);
+    opacity: 0;
 }
 
 @keyframes scanner-wipe {
@@ -2759,7 +2823,128 @@ body.in-settlement .osd-bar {
     opacity: 0.85;
 }
 
+/* ================= 精神底片：次级折叠菜单样式 (零卡顿 Grid 终极版) ================= */
+.phil-accordion-wrapper {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+}
 
+/* 按钮未解码态：暗红 + 模糊，且锁定禁止点击 */
+.phil-accordion-header {
+    color: #440000;
+    filter: blur(1.5px);
+    font-family: 'Roboto Mono', 'PingFang SC', monospace;
+    font-size: 0.8rem;
+    padding: 12px 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: 3px;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+    transition: color 2.5s cubic-bezier(0.4, 0, 0.2, 1),
+        filter 2.5s cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 0.3s ease;
+    pointer-events: none;
+    /* 红光扫过前，物理锁死点击 */
+}
+
+/* 当红光扫描解码后：恢复清晰与机能灰，解除点击锁定 */
+.spirit-negative-wrap.is-decoding .phil-accordion-header {
+    color: #888;
+    filter: none !important;
+    /* 彻底关闭滤镜渲染，释放性能 */
+    pointer-events: auto;
+}
+
+.spirit-negative-wrap.is-decoding .phil-accordion-header:hover {
+    color: #ccc;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* 展开图标的加号 */
+.phil-acc-icon {
+    color: #990000;
+    font-weight: bold;
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease;
+}
+
+/* 点击展开后的高亮激活态 */
+.phil-accordion-header.active {
+    color: #fff !important;
+    border-bottom-color: rgba(255, 255, 255, 0.15);
+}
+
+.phil-accordion-header.active .phil-acc-icon {
+    transform: rotate(45deg);
+    color: #ff4d4f;
+}
+
+/* 终极性能版折叠内容：抛弃 max-height，使用原生 Grid 计算，绝对不卡且文字不消失 */
+.phil-accordion-content {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease 0.1s;
+    will-change: grid-template-rows, opacity;
+}
+
+.phil-accordion-content.expanded {
+    grid-template-rows: 1fr;
+    opacity: 1;
+}
+
+/* 内部盒子包裹层：控制装订线和内边距的动画 */
+.phil-acc-inner {
+    overflow: hidden;
+    /* 核心：必须包裹这个，Grid 折叠动画才会生效 */
+    padding: 0 15px 0 25px;
+    /* 初始收起时去除上下内边距 */
+    margin-top: 0;
+    font-family: 'PingFang SC', sans-serif;
+    font-size: 0.82rem;
+    color: #666;
+    line-height: 1.8;
+    text-align: justify;
+    border-left: 2px solid transparent;
+    /* 初始状态边框透明 */
+    transition: padding 0.3s ease, margin 0.3s ease, border-color 2.5s ease;
+}
+
+.phil-accordion-content.expanded .phil-acc-inner {
+    padding: 15px 15px 25px 25px;
+    /* 展开后撑开呼吸感 */
+    margin-top: 5px;
+}
+
+/* 解码后的左侧红线装订线提亮 */
+.spirit-negative-wrap.is-decoding .phil-acc-inner {
+    border-left-color: #990000;
+}
+
+/* 解码后的装订线提亮 */
+.spirit-negative-wrap.is-decoding .phil-accordion-header {
+    color: #888;
+    filter: none !important;
+    /* 关键：用 none 彻底关闭渲染管线，原来的 blur(0) 依然会耗能 */
+}
+
+/* ================= 终极性能补丁：重度渲染层隔离 ================= */
+.phase-screen,
+.archive-section,
+#phase-5 {
+    /* 强制分配独立显卡图层。当它们被折叠面板往下推时，
+       浏览器只需像移动图片一样滑动它们，而不需要重新计算内部的黑洞和发光特效 */
+    transform: translateZ(0);
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+
+/* ================= 精神底片新增结束 ================= */
 
 .footer-note {
     font-family: 'Roboto Mono', monospace;
@@ -3295,6 +3480,91 @@ body.lock-scroll {
     transform: translateX(0);
 }
 
+/* 专属放映室内容排版增强 */
+.script-source-detail {
+    margin-top: 15px;
+    padding-left: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.source-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.source-label {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.65rem;
+    color: #444;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.source-label::before {
+    content: "";
+    width: 12px;
+    height: 1px;
+    background: #990000;
+}
+
+.source-value {
+    font-family: 'PingFang SC', sans-serif;
+    font-size: 0.85rem;
+    color: #888;
+    line-height: 1.8;
+    text-align: justify;
+    word-break: break-all;
+}
+
+/* 强制垂直布局，确保平行剧目在下方 */
+.movie-list-unroll {
+    flex-direction: column !important;
+}
+
+.movie-sub-section {
+    width: 100% !important;
+    margin-bottom: 35px;
+}
+
+.movie-sub-title {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.75rem;
+    color: #444;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    padding-left: 30px;
+}
+
+.movie-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    padding-left: 30px;
+}
+
+.movie-list li {
+    font-family: 'PingFang SC', sans-serif;
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 12px;
+    border: none !important;
+}
+
+/* 移除所有虚线装饰 */
+.movie-projector-entry, 
+.movie-list-unroll, 
+.movie-sub-section, 
+.movie-list li {
+    border: none !important;
+    background-image: none !important;
+}
+
 
 /* 核心晕染： Photon Sphere */
 .event-horizon-glow {
@@ -3594,20 +3864,79 @@ body.lock-scroll {
     /* 缩短纵向间距 */
 }
 
+/* 1. 导演对焦框：利用多重背景绘制极简的 4 个对焦角 */
 .action-item-wrapper {
     position: relative;
     width: 100%;
-    height: 40px;
-    /* 缩短高度以减少空隙 */
+    height: 60px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.3s ease;
+    background-color: transparent;
+
+    /* 绘制 8 条极细的线，拼成 4 个直角 (粗 1px, 长 15px) */
+    background-image:
+        /* 左上 */
+        linear-gradient(#666, #666), linear-gradient(#666, #666),
+        /* 右上 */
+        linear-gradient(#666, #666), linear-gradient(#666, #666),
+        /* 左下 */
+        linear-gradient(#666, #666), linear-gradient(#666, #666),
+        /* 右下 */
+        linear-gradient(#666, #666), linear-gradient(#666, #666);
+
+    /* 角标的默认位置：紧贴四个角落 */
+    background-position:
+        20px 0, 20px 0,
+        calc(100% - 20px) 0, calc(100% - 20px) 0,
+        20px 100%, 20px 100%,
+        calc(100% - 20px) 100%, calc(100% - 20px) 100%;
+
+    /* 角标的尺寸：一条横向长，一条纵向长，组合成 L 型 */
+    background-size:
+        8px 1px, 1px 8px,
+        /* 左上 */
+        8px 1px, 1px 8px,
+        /* 右上 */
+        8px 1px, 1px 8px,
+        /* 左下 */
+        8px 1px, 1px 8px;
+    /* 右下 */
+
+    background-repeat: no-repeat;
+    transition: background-position 0.2s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.2s ease, background-image 0.2s ease;
 }
 
+/* 2. 手机端按压反馈：瞬间“合焦”锁定，变红并产生底片微光 */
 .action-item-wrapper:active {
-    background: rgba(255, 255, 255, 0.03);
+    /* 四个角向内收缩 12px，产生机械对焦感 */
+    background-position:
+        12px 12px, 12px 12px,
+        calc(100% - 12px) 12px, calc(100% - 12px) 12px,
+        12px calc(100% - 12px), 12px calc(100% - 12px),
+        calc(100% - 12px) calc(100% - 12px), calc(100% - 12px) calc(100% - 12px);
+
+    /* 颜色瞬间变为你的主题警戒红 */
+    background-image:
+        linear-gradient(#990000, #990000), linear-gradient(#990000, #990000),
+        linear-gradient(#990000, #990000), linear-gradient(#990000, #990000),
+        linear-gradient(#990000, #990000), linear-gradient(#990000, #990000),
+        linear-gradient(#990000, #990000), linear-gradient(#990000, #990000);
+
+    background-color: rgba(153, 0, 0, 0.05);
+    /* 红光底片曝光感 */
+}
+
+/* 3. 内部文字与图标配合点亮 */
+.action-item-wrapper:active .action-cn {
+    color: #fff;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+    transition: all 0.1s;
+}
+
+.action-item-wrapper:active .action-en {
+    color: #990000;
 }
 
 .action-info {
@@ -4693,6 +5022,7 @@ body.is-capturing .osd-bar {
     background: #000;
     box-shadow: 0 0 30px rgba(0, 0, 0, 1);
 }
+
 /* 🌟 结算页 Header 强力修饰 */
 body.in-settlement #q-id {
     font-family: 'Roboto Mono', 'Courier New', monospace;
@@ -4703,4 +5033,269 @@ body.in-settlement #q-id {
 body.in-settlement #clock {
     letter-spacing: 2px;
     font-weight: bold;
+}
+
+/* ================= ACT TRANSITION (幕间转场) ================= */
+#act-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 5000;
+    /* 高于普通内容，但低于 shutter-gate (20000) */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0 12%;
+    color: #fff;
+    font-family: 'Roboto Mono', "Microsoft YaHei", monospace;
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#act-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.act-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: fit-content;
+    margin: 0;
+}
+
+.act-header {
+    width: fit-content;
+    display: flex;
+    align-items: baseline;
+    gap: 15px;
+    margin-bottom: 20px;
+    opacity: 1;
+    position: relative;
+    white-space: pre;
+}
+
+.act-mark {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 16px;
+    letter-spacing: 6px;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 300;
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    width: calc(var(--mark-steps) * (1ch + 6px));
+    animation: actTypewriter var(--mark-duration) var(--mark-delay) steps(var(--mark-steps)) both;
+}
+
+.act-mark::after {
+    content: "";
+    position: absolute;
+    top: 15%;
+    right: 0;
+    width: 6px;
+    height: 70%;
+    background: #fff;
+    box-shadow: 0 0 8px #fff;
+    opacity: 0;
+    z-index: 2;
+    animation: actCursorVisibility var(--mark-duration) var(--mark-delay) steps(var(--mark-steps)) both;
+}
+
+.act-num {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 42px;
+    font-weight: 800;
+    color: #fff;
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    width: calc(var(--num-steps) * 1ch);
+    animation: actTypewriter var(--num-duration) var(--num-delay) steps(var(--num-steps)) both;
+}
+
+.act-num::after {
+    content: "";
+    position: absolute;
+    top: 15%;
+    right: -2px;
+    width: 8px;
+    height: 70%;
+    background: #fff;
+    box-shadow: 0 0 10px #fff;
+    opacity: 0;
+    z-index: 2;
+    animation: actCursorVisibility var(--num-duration) var(--num-delay) steps(var(--num-steps)) both;
+}
+
+.act-title {
+    position: relative;
+    width: calc(var(--title-steps, 5) * 1em);
+    white-space: pre;
+    overflow: hidden;
+    font-size: 100px;
+    font-weight: 900;
+    color: #fff;
+    font-family: 'Roboto Mono', "Microsoft YaHei", monospace;
+    letter-spacing: 0;
+    margin: 0;
+    text-transform: uppercase;
+    opacity: 1;
+    animation: actTypewriter var(--title-duration, 0.1s) var(--title-delay, 0.1s) steps(var(--title-steps, 5)) both;
+}
+
+.act-title::after,
+.act-subtitle::after {
+    content: "";
+    position: absolute;
+    top: 15%;
+    right: 0;
+    width: 2px;
+    height: 70%;
+    background: #fff;
+    box-shadow: 0 0 12px #fff;
+    opacity: 0;
+    z-index: 2;
+}
+
+.act-title::after {
+    animation: actCursorVisibility var(--title-duration, 0.1s) var(--title-delay, 0.1s) steps(var(--title-steps, 5)) both;
+}
+
+.act-divider {
+    width: 100px;
+    height: 4px;
+    background: #fff;
+    margin: 150px 0 40px 0;
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.6);
+    opacity: 0;
+    animation: actDividerIn 0.3s var(--divider-delay, 0.2s) cubic-bezier(0.2, 0, 0.2, 1) both;
+}
+
+.act-subtitle {
+    position: relative;
+    width: calc(var(--subtitle-steps, 20) * 1em);
+    white-space: pre;
+    overflow: hidden;
+    font-size: 24px;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: 'Roboto Mono', "Microsoft YaHei", monospace;
+    letter-spacing: 0;
+    opacity: 1;
+    text-align: left;
+    padding: 0;
+    animation: actTypewriter var(--subtitle-duration, 0.1s) var(--subtitle-delay, 0.3s) steps(var(--subtitle-steps, 20)) both;
+}
+
+.act-subtitle::after {
+    animation:
+        actCursorVisibilityLast var(--subtitle-duration, 0.1s) var(--subtitle-delay, 0.3s) steps(var(--subtitle-steps, 20)) forwards,
+        actCursorBlink 1.2s var(--final-blink-delay, 0.5s) infinite;
+}
+
+.act-enter-hint {
+    position: absolute;
+    bottom: 60px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 4px;
+    color: rgba(255, 255, 255, 0.3);
+    animation: actHintBlink 2s infinite;
+}
+
+@keyframes actTypewriter {
+    from {
+        width: 0;
+    }
+}
+
+@keyframes actCursorVisibility {
+
+    0%,
+    99% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes actCursorVisibilityLast {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes actCursorBlink {
+
+    0%,
+    100% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+@keyframes actDividerIn {
+    from {
+        width: 0;
+        opacity: 0;
+    }
+
+    to {
+        width: 100px;
+        opacity: 1;
+    }
+}
+
+@keyframes actHintBlink {
+
+    0%,
+    100% {
+        opacity: 0.1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
+@media (max-width: 768px) {
+    .act-title {
+        font-size: 3.5rem;
+    }
+
+    .act-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .act-divider {
+        margin: 80px 0 30px 0;
+    }
+}
+
+/* ================= 终极补丁：锁死底层红光，禁止随展开拉伸扩大 ================= */
+#spirit-screen-leak {
+    position: fixed !important;
+    top: 0 !important;
+    height: 100vh !important;
+    /* 强行锁定为固定的视口屏幕高度，不再随菜单展开而拉长变大 */
+    bottom: auto !important;
+}
+
+#spirit-screen-leak::after {
+    top: 0 !important;
+    bottom: auto !important;
+    height: 100vh !important;
+    /* 锁死模糊红光晕的物理高度，使其变成静态缓存，彻底绝育动态重绘 */
 }
