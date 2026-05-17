@@ -2546,6 +2546,13 @@ body.in-settlement .osd-bar {
     overflow: hidden;
 }
 
+/* 彻底修复解码展开时，由于 overflow: hidden 导致父级容器在某些浏览器下高度锁定、吞掉顶部内容的 Flex/Grid 重绘裁剪 Bug */
+.spirit-negative-wrap.is-decoding {
+    overflow: visible !important;
+    height: auto !important;
+}
+
+
 /* 屏幕最左侧：侵略性有机漏光 (Layered Organic Leak) */
 #spirit-screen-leak {
     position: fixed;
@@ -2783,9 +2790,10 @@ body.in-settlement .osd-bar {
 }
 
 
-/* 解码时，用固定的像素把它推走并隐藏 */
+/* 解码时，将高度限制为 100% 并在原位淡出，防止 2500px 溢出高度撑开文档滚动条导致无法锁屏的 Bug */
 .spirit-negative-wrap.is-decoding::before {
-    transform: translateY(2500px);
+    height: 100% !important;
+    transform: translateY(0) !important;
     opacity: 0;
 }
 
@@ -2843,10 +2851,8 @@ body.in-settlement .osd-bar {
     align-items: center;
     gap: 10px;
     letter-spacing: 3px;
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
     transition: color 2.5s cubic-bezier(0.4, 0, 0.2, 1),
-        filter 2.5s cubic-bezier(0.4, 0, 0.2, 1),
-        border-color 0.3s ease;
+        filter 2.5s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
     /* 红光扫过前，物理锁死点击 */
 }
@@ -2866,7 +2872,8 @@ body.in-settlement .osd-bar {
 
 /* 展开图标的加号 */
 .phil-acc-icon {
-    color: #990000;
+    color: #888;
+    /* 没展开的时候是灰色 */
     font-weight: bold;
     display: inline-block;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease;
@@ -2875,12 +2882,12 @@ body.in-settlement .osd-bar {
 /* 点击展开后的高亮激活态 */
 .phil-accordion-header.active {
     color: #fff !important;
-    border-bottom-color: rgba(255, 255, 255, 0.15);
 }
 
 .phil-accordion-header.active .phil-acc-icon {
     transform: rotate(45deg);
     color: #ff4d4f;
+    /* 展开了是红色 */
 }
 
 /* 终极性能版折叠内容：抛弃 max-height，使用原生 Grid 计算，绝对不卡且文字不消失 */
@@ -3127,6 +3134,13 @@ body.in-settlement .osd-bar {
     /* 增加 120px 安全缓冲区，防止内容与底部的微光重叠导致误触 */
     transition: opacity 1.5s ease;
     box-sizing: border-box;
+}
+
+/* 解决精神底片展开全部手风琴后，由于 flex 垂直居中（justify-content: center）导致顶部内容溢出屏幕上方且无法滑回的经典 Flex 裁剪 Bug */
+#phase-4 {
+    justify-content: flex-start !important;
+    padding-top: 80px !important;
+    padding-bottom: 140px !important;
 }
 
 /* --- DC INTERACTION ZONE (FLOATING OVERLAY) --- */
@@ -5283,19 +5297,4 @@ body.in-settlement #clock {
         margin: 80px 0 30px 0;
     }
 }
-
-/* ================= 终极补丁：锁死底层红光，禁止随展开拉伸扩大 ================= */
-#spirit-screen-leak {
-    position: fixed !important;
-    top: 0 !important;
-    height: 100vh !important;
-    /* 强行锁定为固定的视口屏幕高度，不再随菜单展开而拉长变大 */
-    bottom: auto !important;
-}
-
-#spirit-screen-leak::after {
-    top: 0 !important;
-    bottom: auto !important;
-    height: 100vh !important;
-    /* 锁死模糊红光晕的物理高度，使其变成静态缓存，彻底绝育动态重绘 */
-}
+
